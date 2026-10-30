@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lucky Wheel</title>
+<style>
+:root{--gold:#f6c85f;--gold2:#b98122;--bg:#090909;--panel:#17130c;--muted:#b9aa87}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 25%,#34250d 0,#100d08 38%,#070707 78%);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:min(100%,480px);padding:26px 18px 40px;text-align:center}
+h1{margin:8px 0;color:var(--gold);font-size:32px;letter-spacing:1px}
+.sub{color:var(--muted);margin:0 0 22px}
+.panel{background:linear-gradient(145deg,#211a0e,#100e0a);border:1px solid #76551e;border-radius:22px;padding:18px;box-shadow:0 15px 45px #0009}
+.balance{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+.balance strong{color:var(--gold);font-size:21px}
+.wheel-wrap{position:relative;width:min(82vw,340px);height:min(82vw,340px);margin:28px auto 20px}
+.pointer{position:absolute;z-index:3;top:-12px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-top:34px solid #fff;filter:drop-shadow(0 2px 4px #000)}
+#wheel{width:100%;height:100%;border-radius:50%;border:8px solid var(--gold);box-shadow:0 0 0 5px #3a2a10,0 0 35px #d99a2c66;transition:transform 5s cubic-bezier(.12,.78,.12,1);background:conic-gradient(#8e1f17 0deg 36deg,#e1aa37 36deg 72deg,#183c32 72deg 108deg,#8e1f17 108deg 144deg,#e1aa37 144deg 180deg,#183c32 180deg 216deg,#8e1f17 216deg 252deg,#e1aa37 252deg 288deg,#183c32 288deg 324deg,#8e1f17 324deg 360deg);position:relative;overflow:hidden}
+.labels{position:absolute;inset:0;pointer-events:none}
+.label{position:absolute;left:50%;top:50%;width:50%;height:24px;transform-origin:0 50%;color:#fff;font-weight:800;font-size:15px;text-shadow:0 2px 3px #000;display:flex;align-items:center;padding-left:24px}
+.hub{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);width:74px;height:74px;border-radius:50%;background:linear-gradient(145deg,#ffe49a,#a66b13);border:5px solid #fff0c2;color:#251805;font-weight:900;display:grid;place-items:center;box-shadow:0 3px 12px #0009}
+button{width:100%;border:0;border-radius:14px;padding:15px;background:linear-gradient(90deg,#f8d77d,#bd8121);color:#211605;font-size:17px;font-weight:900;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.note{color:#b9aa87;font-size:12px;line-height:1.7;margin-top:15px}
+#result{min-height:28px;color:var(--gold);font-weight:800;margin:12px 0 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>🎡 LUCKY WHEEL</h1>
+  <p class="sub">جرّب حظك واربح رصيداً داخل اللعبة</p>
+  <section class="panel">
+    <div class="balance"><span>رصيدك التجريبي</span><strong id="balance">0 ⭐</strong></div>
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <div id="wheel"><div class="labels" id="labels"></div></div>
+      <div class="hub">LUCKY</div>
+    </div>
+    <button id="spin">تجربة دوران العجلة</button>
+    <div id="result">هذه معاينة للعبة</div>
+    <p class="note">نسخة معاينة فقط: لا تخصم نجوم تيليجرام ولا تضيف جوائز حقيقية. ربط الدفع والتحقق من الجوائز يحتاج خادماً آمناً وموافقة على آلية اللعبة.</p>
+  </section>
+</main>
+<script>
+const prizes=[0,2,5,10,0,2,5,10,0,0];
+const labels=document.getElementById('labels');
+prizes.forEach((p,i)=>{
+ const el=document.createElement('div');el.className='label';
+ el.style.transform=`rotate(${i*36+18}deg)`;
+ el.textContent=p===0?'حظ أوفر':`${p} ⭐`;
+ labels.appendChild(el);
+});
+let spinning=false,rotation=0;
+const wheel=document.getElementById('wheel'),btn=document.getElementById('spin'),result=document.getElementById('result');
+btn.addEventListener('click',()=>{
+ if(spinning)return;
+ spinning=true;btn.disabled=true;result.textContent='العجلة تدور...';
+ const chosen=Math.floor(Math.random()*10);
+ const center=chosen*36+18;
+ const target=360*6+(360-center);
+ rotation+=target;
+ wheel.style.transform=`rotate(${rotation}deg)`;
+ setTimeout(()=>{
+  result.textContent=prizes[chosen]===0?'حظ أوفر! جرّب مرة ثانية':'النتيجة التجريبية: '+prizes[chosen]+' ⭐';
+  spinning=false;btn.disabled=false;
+ },5000);
+});
+</script>
+</body>
+</html>
