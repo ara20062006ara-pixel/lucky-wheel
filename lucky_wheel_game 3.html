@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10152b">
+<title>دولاب الحظ</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#27345d,#10152b 60%);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;padding:22px 14px 40px}
+main{max-width:480px;margin:auto}.top{text-align:center;margin:8px 0 18px}.top h1{font-size:30px;margin:0 0 5px}.top p{color:#c6cce0;margin:0;font-size:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.stat,.panel{background:#1b2340;border:1px solid #394568;border-radius:17px;padding:14px;text-align:center;box-shadow:0 8px 24px #0003}.stat small{display:block;color:#b8c2df}.stat strong{font-size:24px;color:#ffd76a}
+.wheel-wrap{position:relative;width:min(86vw,350px);aspect-ratio:1;margin:18px auto 16px;filter:drop-shadow(0 12px 20px #0008)}
+.wheel{width:100%;height:100%;border-radius:50%;border:9px solid #f5d77a;background:conic-gradient(#ffcf5b 0deg 24deg,#f08b45 24deg 48deg,#8b70df 48deg 72deg,#43b9a8 72deg 96deg,#e86b91 96deg 120deg,#4e91dc 120deg 144deg,#ffcf5b 144deg 168deg,#f08b45 168deg 192deg,#8b70df 192deg 216deg,#43b9a8 216deg 240deg,#e86b91 240deg 264deg,#4e91dc 264deg 288deg,#ffcf5b 288deg 312deg,#f08b45 312deg 336deg,#8b70df 336deg 360deg);position:relative;transition:transform 4.2s cubic-bezier(.12,.72,.12,1)}
+.labels{position:absolute;inset:0}.labels span{position:absolute;left:50%;top:50%;width:48px;text-align:center;font-weight:900;color:#17203a;font-size:14px;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-132px) rotate(calc(-1 * var(--a)))}
+.pin{position:absolute;z-index:2;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-top:34px solid #fff;filter:drop-shadow(0 3px 3px #0008)}
+.hub{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;background:linear-gradient(145deg,#fff1a8,#e8a52c);border:6px solid #fff;display:grid;place-items:center;color:#39280b;font-weight:1000}
+button{border:0;border-radius:13px;padding:13px 16px;font-size:16px;font-weight:800;cursor:pointer;color:#151b31;background:linear-gradient(135deg,#ffe58a,#ffbd43);width:100%;margin-top:9px}
+button.secondary{background:#344365;color:#fff;border:1px solid #52658d}button:disabled{opacity:.5;cursor:not-allowed}
+.panel{margin-top:13px;text-align:right}.panel h3{margin:0 0 8px;color:#ffda79}.panel p{margin:6px 0;color:#d8def0;font-size:14px;line-height:1.7}
+.progress{height:12px;background:#0e1428;border-radius:20px;overflow:hidden;margin:10px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,#42d6a0,#ffe071);transition:width .3s}
+#status{text-align:center;color:#ffe18b;font-weight:700;min-height:27px;margin:7px 0}
+#countdown{font-variant-numeric:tabular-nums;color:#ffe18b;font-weight:800}
+footer{text-align:center;color:#8793b4;font-size:11px;margin:15px 0}
+</style></head>
+<body><main>
+<header class="top"><h1>🎡 دولاب الحظ</h1><p>لف دولابك واجمع النقاط وافتح صندوق الهدية!</p></header>
+<section class="stats">
+<div class="stat"><small>⭐ نقاطك</small><strong id="points">0</strong></div>
+<div class="stat"><small>👥 مرات فتح اللعبة على هذا الجهاز</small><strong id="visits">1</strong></div>
+</section>
+<div class="wheel-wrap"><div class="pin"></div><div class="wheel" id="wheel"><div class="labels" id="labels"></div></div><div class="hub">لف!</div></div>
+<div id="status">كل 6 ساعات تحصل على لفة مجانية</div>
+<button id="spin">🎯 لف الدولاب</button>
+<div class="panel">
+<h3>🎁 صندوق الهدايا</h3><p>🔥 اربح كود ببجي مهكرة – شدات PUBG UC! اجمع <b>150 نقطة</b> حتى تفتح الصندوق.</p>
+<div class="progress"><div class="bar" id="bar"></div></div><p id="progressText">0 / 150 نقطة</p>
+<button id="chest" disabled>🔒 افتح الصندوق عند 150 نقطة</button>
+</div>
+<div class="panel">
+<h3>📣 شارك اللعبة واربح لفة إضافية</h3>
+<p>اضغط مشاركة اللعبة. تحصل على لفة إضافية واحدة على هذا الجهاز بعد إكمال المشاركة.</p>
+<button class="secondary" id="share">مشاركة اللعبة + لفة إضافية</button>
+<p id="shareInfo">اللفة الإضافية تُمنح مرة واحدة لكل جهاز في هذا النموذج.</p>
+</div>
+<footer>نسخة تجريبية تعمل على هذا الجهاز والمتصفح.</footer>
+</main>
+<script>
+const vals=[0,1,2,3,5,8,10,15,20,30,50,70,100,1,2];
+const weights=[28,22,18,13,8,5,3,1.5,.8,.4,.15,.05,.001,22,18];
+const key='luckyWheel_v1';
+let data=JSON.parse(localStorage.getItem(key)||'{}');
+data.points=data.points||0;data.last=data.last||0;data.bonus=data.bonus||false;
+data.visits=(data.visits||0)+1;
+function save(){localStorage.setItem(key,JSON.stringify(data));}
+const wheel=document.getElementById('wheel');
+vals.forEach((v,i)=>{let s=document.createElement('span');s.textContent=v;s.style.setProperty('--a',(i*24+12)+'deg');document.getElementById('labels').appendChild(s)});
+function render(){
+ document.getElementById('points').textContent=data.points;
+ document.getElementById('visits').textContent=data.visits;
+ document.getElementById('bar').style.width=Math.min(100,data.points/150*100)+'%';
+ document.getElementById('progressText').textContent=Math.min(data.points,150)+' / 150 نقطة';
+ let ready=data.points>=150;document.getElementById('chest').disabled=!ready;
+ document.getElementById('chest').textContent=ready?'🎁 افتح صندوق الهدية':'🔒 افتح الصندوق عند 150 نقطة';
+ let remain=Math.max(0,21600000-(Date.now()-data.last));
+ document.getElementById('spin').disabled=spinning||(!data.bonus&&remain>0);
+ if(data.bonus)document.getElementById('status').textContent='عندك لفة إضافية جاهزة من المشاركة!';
+ else if(remain>0)document.getElementById('status').textContent='اللفة المجانية القادمة بعد: '+fmt(remain);
+ else document.getElementById('status').textContent='لفتك المجانية جاهزة الآن!';
+}
+function fmt(ms){let s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),r=s%60;return [h,m,r].map(x=>String(x).padStart(2,'0')).join(':')}
+let spinning=false,rotation=0;
+function choose(){let total=weights.reduce((a,b)=>a+b,0),r=Math.random()*total;for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0)return i}return 0}
+document.getElementById('spin').onclick=()=>{
+ if(spinning)return;let remain=21600000-(Date.now()-data.last);
+ if(!data.bonus&&remain>0)return;
+ if(data.bonus)data.bonus=false;else data.last=Date.now();
+ let i=choose(),v=vals[i];spinning=true;
+ rotation+=360*6+(360-(i*24+12));wheel.style.transform=`rotate(${rotation}deg)`;
+ document.getElementById('spin').disabled=true;document.getElementById('status').textContent='الدولاب يلف...';
+ setTimeout(()=>{data.points+=v;spinning=false;save();document.getElementById('status').textContent='مبروك! ربحت '+v+' نقطة 🎉';render();},4300);
+};
+document.getElementById('share').onclick=async()=>{
+ const url=location.href;
+ try{
+  if(navigator.share) await navigator.share({title:'دولاب الحظ',text:'تعال العب دولاب الحظ واجمع النقاط!',url});
+  else {await navigator.clipboard.writeText(url);alert('تم نسخ رابط اللعبة. شاركه مع أصدقائك.');}
+  if(!data.bonus){data.bonus=true;save();document.getElementById('shareInfo').textContent='تمت إضافة لفة المشاركة الإضافية!';}
+  else document.getElementById('shareInfo').textContent='استخدمت لفة المشاركة مسبقاً.';
+  render();
+ }catch(e){document.getElementById('shareInfo').textContent='لم تكتمل المشاركة؛ جرّب مرة ثانية.';}
+};
+document.getElementById('chest').onclick=()=>{if(data.points>=150)location.href='https://t.me/YsimBot?start=to23c9f2cc4f79f2fb4ed2d5c1c6ab08cf50973'};
+save();render();setInterval(render,1000);
+</script></body></html>
